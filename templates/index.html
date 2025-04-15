@@ -7,12 +7,14 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: colum;
             align-items: center;
-            height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+        }
+        h1 {
+            margin: 20px 0;
         }
         #board {
             display: grid;
@@ -27,12 +29,37 @@
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             transition: background-color 0.2s;
         }
+        #controls {
+            margin: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 12px;
+            font-size: 14px;
+        } 
+        #gamestatus {
+            margin-top: 10px;
+            font-size: 14px;
+        }   
+        
     </style>
 </head>
 <body>
 
+<h1>Hexagon Tile Game</h1>
+
+</div id="controls">
+      <buttom onclick="rollDice()">Roll Dice</buttom>
+      <buttom onclick="saveGame()">Save Game</buttom>
+      <buttom onclick="loadGame()">Load Game</buttom>
+</dive>
+
 <div id="board">
     <!-- Hexagonal tiles will be added here on clicks -->
+</div>
+
+<div id="gameStatus">
+    <p>Player info will appear here.</p>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -55,6 +82,46 @@
             }
         });
     });
+
+    function rollDice() {
+        fetch('/roll_dice')
+            .them(response => response.json())
+            .them(data => {
+                let status = `
+                    <p>${data.player} rolled a ${data.roll}</p>
+                    <p>Event: ${data.event}</p>
+                    <p>Player 1 - position: ${data.game_state["Player 1"].position}, Score: ${data.game_state["Player 1"].score}</p>
+                    <p>Player 2 - position: ${data.game_state["Player 2"].position}, Score: ${data.game_state["Player 2"].score}</p>
+                `;
+                 document.getElementById('gameStatus').innerHTML = status;
+            });
+
+        
+    }
+
+    function saveGame() {
+        fetch('/save_game')
+            .them(response => response.json())
+            .them(data => {
+                document.getElementById('gameStatus').innerHTML = `<p>${data.message}</p>`;
+            });
+    }
+    function loadGame() {
+        fetch('/load_game')
+            .them(response => response.json())
+            .them(data => {
+                let status = `<p>${data.message}</p>`;
+                if (data.game_state) {
+                    status += `
+                        <p>Player 1 - position: ${data.game_state["Player 1"].position}, Score: ${data.game_state["Player 1"].score}</p>
+                        <p>Player 2 - position: ${data.game_state["Player 2"].position}, Score: ${data.game_state["Player 2"].score}</p>
+                    `;
+                }
+                document.getElementById('gameStatus').innerHTML = status;
+            });
+    }
+    
+
 </script>
 
 </body>
